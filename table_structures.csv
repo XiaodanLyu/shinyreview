@@ -1,0 +1,3 @@
+table,row,column,name,cond_level_rel,cond_level,cond_se_rel,cond_se,digit
+2,Year,Broad/Cover Use,"Land Cover/use of non-Federal rural land, by State and year, in thousands of acres.",> 0.1,>= 1,> 0.1,> 0,1
+3a,Year,Broad/Cover Use,"Estimated average annual sheet and rill erosion on non-Federal rural land, by State and year, Tons per acre per year.",> 0.05,>= 0.1,> 0.1,>= 0.005,3
