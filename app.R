@@ -4,7 +4,7 @@ source("template.r")
 # Define UI for application 
 ui <- dashboardPage(
   skin = "blue",
-  dashboardHeader(title = "NRI Data Review Visualization", titleWidth = 350),
+  dashboardHeader(title = "NRI Table Review Visualization", titleWidth = 350),
   dashboardSidebar(disable = TRUE),
   dashboardBody(
     tags$style(type="text/css",
@@ -14,6 +14,8 @@ ui <- dashboardPage(
       box(width = 12, status = "success", solidHeader = TRUE,
           title = "Info", collapsible = TRUE, collapsed = TRUE,
           p("You can collapse this info Box by clicking the '-' on the topright corner."),
+          p("This tool is an adapted version of the tool that is used for National Resource Inventory (NRI) table review program. 
+            For demonstration purpose, this app uses the tables from 2015 and 2012 NRI report that can be downloaded from the USDA NRCS website."),
           p("Please use the <Options> box to customize the difference tables to be displayed."),
           tags$ul(
             tags$li("The version is named by 'DateOfRun_YearOfData'. V1 (new values) is compared with V2 (old values)."), 

@@ -14,8 +14,8 @@ nri_bu <- read.csv("NRI_BU_CODE.csv", stringsAsFactors = FALSE)
 ## diff map
 map <- readr::read_rds("us_nri_mapdf.rds")
 center <- read.csv("cb_2017_us_state_20m_albers_centroid.csv", stringsAsFactors = FALSE)
-map.cty <- readr::read_rds("us_cty_mapdf.rds")
-center.cty <- readr::read_rds("us_cty_center.rds")
+# map.cty <- readr::read_rds("us_cty_mapdf.rds")
+# center.cty <- readr::read_rds("us_cty_center.rds")
 ## method II
 NRItb <- read.csv("NRItables_by_version_state_year.csv", stringsAsFactors = F)
 NRItb <- NRItb %>% mutate(setname = paste(version, year, sep = "_")) %>% select(-year, -version)
