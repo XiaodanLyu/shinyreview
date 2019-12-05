@@ -3,36 +3,6 @@ diff_table <- function(source, tb.diff, tb_type, tb_color, yn_filter_table, setn
   # browser()
   tb_num <- unique(tb.diff$table)
   
-  if(grepl("2", tb_num)|tb_num == "4"){
-    tb.diff <- tb.diff %>%
-      mutate(row = factor(row, levels = rev(unique(row)))) %>%
-      mutate_at(vars(column), 
-                funs(factor(., levels = nri_bu$Category, labels = nri_bu$Category)))
-  }
-  if(grepl("1", tb_num)){
-    tb.diff <- tb.diff %>%
-      # filter(table == "2a") %>%
-      mutate_at(vars(row, column), 
-                funs(factor(., levels = nri_bu$Category, labels = nri_bu$Category))) %>%
-      mutate(row = forcats::fct_relevel(row, rev(levels(row))))
-  }
-  if(grepl("3", tb_num)){
-    # browser()
-    tb.diff <- tb.diff %>%
-      mutate(row = factor(row, levels = rev(unique(row)))) %>%
-      mutate_at(vars(column), 
-                funs(factor(., levels = unique(column)[c(2,3,5,1,4)], labels = unique(column)[c(2,3,5,1,4)])))
-  }
-  if(grepl("4", tb_num) & tb_num != "4"){
-    nri_bu2 <- nri_bu %>% 
-      mutate(Category = gsub("Cult.", "Irr.", Category),
-             Category = gsub("Noncult.", "Nonirr.", Category))
-    tb.diff <- tb.diff %>%
-      mutate_at(vars(row, column), 
-                funs(factor(., levels = nri_bu2$Category, labels = nri_bu2$Category))) %>%
-      mutate(row = forcats::fct_relevel(row, rev(levels(row))))
-  }
-  
   lab <- tb_str %>%
     filter(table == tb_num) %>%
     select(-table) %>% unlist
@@ -43,7 +13,7 @@ diff_table <- function(source, tb.diff, tb_type, tb_color, yn_filter_table, setn
   if(yn_filter_table){
     tb_color <- paste0(tb_color, ".filter")
   }
-  # browser()
+  
   digit <- tb_str %>% filter(table == tb_num) %>% select(digit) %>% unlist
   text.format <- sprintf("<b>%%.%df</b>", digit)
   hover.format <- sprintf("%%s: %%s\n%%s: %%s\nnew %%s (%%s): %%.%df\nold %%s (%%s): %%.%df\n%%s: %%.%df", 
@@ -77,12 +47,11 @@ diff_table <- function(source, tb.diff, tb_type, tb_color, yn_filter_table, setn
   }
   p$elementId <- NULL
   p
-  
 }
 
 ## 2nd panel and 4th panel
 diff_map <- function(source = "A", map.diff, is.county = FALSE, tb_type = "level", tb_color = "absdiff",
-                     yn_filter_plot = FALSE, setname1 = "13Apr18_2015", setname2 = "17Jul15_2012"){
+                     yn_filter_plot = FALSE, setname1 = "13Apr18_2015", setname2 = "17Jul15_2012", id_highlight = ""){
   # browser()
   tb_num <- unique(map.diff$table)
   
@@ -116,6 +85,9 @@ diff_map <- function(source = "A", map.diff, is.county = FALSE, tb_type = "level
     geom_polygon(aes(x = long, y = lat, group = group, fill = get(map_color)),
                  color = "darkgrey") +
     scale_fill_gradient2(name = "", na.value = "white", high = "red") +
+    geom_path(aes(x = long, y = lat, group = group),
+                 color = "darkgoldenrod", size = rel(1),
+                 data = map.df %>% filter(id == id_highlight)) +
     coord_equal() + ggthemes::theme_map() +
     theme(title = element_text(size = rel(1.75)),
           plot.title = element_text(hjust = 0.5)) -> gg

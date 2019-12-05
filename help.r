@@ -72,5 +72,37 @@ NRI2Diff <- function(setname1, setname2, tbnum = "2a", data = NRItb){
               funs(replace(., out.se, NA))) %>%
     select(-contains("out"))
   
+  if(length(unique(tb.diff$row))>1){
+    if(grepl("2", tbnum)|tbnum == "4"){
+      tb.diff <- tb.diff %>%
+        mutate(row = factor(row, levels = rev(unique(row)))) %>%
+        mutate_at(vars(column), 
+                  funs(factor(., levels = nri_bu$Category, labels = nri_bu$Category)))
+    }
+    if(grepl("1", tbnum)){
+      tb.diff <- tb.diff %>%
+        # filter(table == "2a") %>%
+        mutate_at(vars(row, column), 
+                  funs(factor(., levels = nri_bu$Category, labels = nri_bu$Category))) %>%
+        mutate(row = forcats::fct_relevel(row, rev(levels(row))))
+    }
+    if(grepl("3", tbnum)){
+      # browser()
+      tb.diff <- tb.diff %>%
+        mutate(row = factor(row, levels = rev(unique(row)))) %>%
+        mutate_at(vars(column), 
+                  funs(factor(., levels = unique(column)[c(2,3,5,1,4)], labels = unique(column)[c(2,3,5,1,4)])))
+    }
+    if(grepl("4", tbnum) & tbnum != "4"){
+      nri_bu2 <- nri_bu %>% 
+        mutate(Category = gsub("Cult.", "Irr.", Category),
+               Category = gsub("Noncult.", "Nonirr.", Category))
+      tb.diff <- tb.diff %>%
+        mutate_at(vars(row, column), 
+                  funs(factor(., levels = nri_bu2$Category, labels = nri_bu2$Category))) %>%
+        mutate(row = forcats::fct_relevel(row, rev(levels(row))))
+    }
+  }
+  
   tb.diff %>% select(contains("level"), contains("se"), everything())
 }

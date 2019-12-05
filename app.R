@@ -120,7 +120,7 @@ server <- function(input, output, session) {
     if(any(grepl("2012", c(input$setname1, input$setname2)))){
       choices_tb <- unique(NRItb$table)[!unique(NRItb$table) %in% out12] %>% sort
     }
-    selectInput("tb_num", "Table number", choices = choices_tb)
+    selectInput("tb_num", "Table number", choices = choices_tb, selected = "3a")
     
   })
   
@@ -141,15 +141,37 @@ server <- function(input, output, session) {
       select(-table) %>% unlist
   })
   
-  ## Panel 1 ####
+  ## Panel 1 plot ####
   output$plot_diff <- renderPlotly({
-    
     setname1 <- input$setname1
     setname2 <- input$setname2
-    data_input <- NRItb %>% filter(state == "US", table == input$tb_num)
-    tb.diff <- NRI2Diff(setname1, setname2, tbnum = input$tb_num, data = data_input)
-    diff_table(source = "us_table", tb.diff, input$tb_type, input$tb_color, input$yn_filter_table, setname1, setname2)
-    # browser()
+    p <- diff_table(source = "us_table", panel1.data(), input$tb_type,
+                    input$tb_color, input$yn_filter_table,
+                    setname1, setname2)
+    event_register(p, "plotly_click")
+    event_register(p, "plotly_hover")
+    p
+  })
+  
+  event <- reactive({
+    action <- ifelse(input$yn_hover_table, "plotly_hover", "plotly_click")
+    event_data(action, source = "us_table")
+  })
+  
+  ## * add box on click/hover ####
+  observeEvent(event(),{
+    tb.diff <- panel1.data()
+    event.data <- event()
+    x <- which(levels(tb.diff$column) == event.data$x)
+    y <- which(levels(tb.diff$row) == event.data$y)
+    plotlyProxy("plot_diff", session) %>%
+      plotlyProxyInvoke("relayout", list(
+        shapes = list(
+          list(type = "rect",
+               fillcolor = NA,
+               line = list(color = "darkgoldenrod", width = 4),
+               x0 = x - 1.5, x1 = x - 0.5,
+               y0 = y - 1.5, y1 = y - 0.5))))
   })
   
   ## Panel 3 plot ####
@@ -158,18 +180,49 @@ server <- function(input, output, session) {
     setname1 <- input$setname1
     setname2 <- input$setname2
     tb.diff <- panel3.data()
-    diff_table(source = "st_table", tb.diff, input$tb_type, input$tb_color, input$yn_filter_table_st, setname1, setname2)
-    # browser()
+    p <- diff_table(source = "st_table", tb.diff, input$tb_type, input$tb_color, input$yn_filter_table_st, setname1, setname2)
+    event_register(p, "plotly_click")
+    event_register(p, "plotly_hover")
+    p
+  })
+  
+  event_st <- reactive({
+    action <- ifelse(input$yn_hover_table_st, "plotly_hover", "plotly_click")
+    event_data(action, source = "st_table")
+  })
+  
+  ## * add box on click/hover ####
+  observeEvent(event_st(),{
+    tb.diff <- panel3.data()
+    event.data <- event_st()
+    x <- which(levels(tb.diff$column) == event.data$x)
+    y <- which(levels(tb.diff$row) == event.data$y)
+    plotlyProxy("plot_diff_st", session) %>%
+      plotlyProxyInvoke("relayout", list(
+        shapes = list(
+          list(type = "rect",
+               fillcolor = NA,
+               line = list(color = "darkgoldenrod", width = 4),
+               x0 = x - 1.5, x1 = x - 0.5,
+               y0 = y - 1.5, y1 = y - 0.5))))
+  })
+  
+  ## input of panel 1 ####
+  panel1.data <- reactive({
+    setname1 <- input$setname1
+    setname2 <- input$setname2
+    data_input <- NRItb %>% filter(state == "US", table == input$tb_num)
+    tb.diff <- NRI2Diff(setname1, setname2, tbnum = input$tb_num, data = data_input)
+    return(tb.diff)
   })
   
   ## input of Panel 2 ####
   panel2.data <- reactive({
-    
-    action <- ifelse(input$yn_hover_table, "plotly_hover", "plotly_click")
-    event.data <- event_data(action, source = "us_table")
+    event.data <- event()
     if(is.null(event.data)){
       return(data.frame())
     }else{
+      # browser()
       setname1 <- input$setname1
       setname2 <- input$setname2
       data_input <- NRItb %>% filter(row == event.data$y, column == event.data$x,
@@ -181,17 +234,23 @@ server <- function(input, output, session) {
   })
   
   ## input of Panel 3 ####
-  panel3.data <- reactive({
-    
+  state.click <- reactive({
     event.data <- event_data("plotly_click", source = "us_map")
-    if(is.null(event.data)){
+    state.click <- ""
+    if(length(event.data)){
+      state.click <- center %>% filter(abs(x - event.data$x) <= 1,
+                        abs(y - event.data$y) <= 1) %>%
+        select(STUSPS) %>% unlist %>% unname
+    }
+    return(state.click)
+  })
+  panel3.data <- reactive({
+    state.click <- state.click()
+    setname1 <- input$setname1
+    setname2 <- input$setname2
+    if(state.click==""){
       return(data.frame())
     }else{
-      setname1 <- input$setname1
-      setname2 <- input$setname2
-      center %>% filter(abs(x - event.data$x) <= 1,
-                        abs(y - event.data$y) <= 1) %>%
-        select(STUSPS) %>% unlist %>% unname -> state.click
       data_input <- NRItb %>% filter(table == input$tb_num, state == state.click)
       tb.diff <- NRI2Diff(setname1, setname2, tbnum = input$tb_num, data = data_input)
       return(tb.diff)
@@ -202,8 +261,7 @@ server <- function(input, output, session) {
   ## input of Panel 4 ####
   panel4.data <- reactive({
     
-    action <- ifelse(input$yn_hover_table_st, "plotly_hover", "plotly_click")
-    event.data <- event_data(action, source = "st_table")
+    event.data <- event_st()
     if(is.null(event.data)){
       return(data.frame())
     }else{
@@ -222,17 +280,24 @@ server <- function(input, output, session) {
   
   ## Panel 2 plot ####
   output$map_diff <- renderPlotly({
-    diff_map("us_map", panel2.data(), is.county = FALSE,
-             input$tb_type, input$tb_color, input$yn_filter_plot,
-             input$setname1, input$setname2)
     # browser()
+    # print(state.click())
+    p <- diff_map("us_map", panel2.data(), is.county = FALSE,
+                  input$tb_type, input$tb_color, input$yn_filter_plot,
+                  input$setname1, input$setname2, id_highlight = state.click())
+    event_register(p, "plotly_click")
+    event_register(p, "plotly_hover")
+    p
   })
   
   ## Panel 4 plot ####
   output$map_diff_st <- renderPlotly({
-    diff_map("st_map", panel4.data(), is.county = TRUE,
-             input$tb_type, input$tb_color, input$yn_filter_plot_st,
-             input$setname1, input$setname2)
+    p <- diff_map("st_map", panel4.data(), is.county = TRUE,
+                  input$tb_type, input$tb_color, input$yn_filter_plot_st,
+                  input$setname1, input$setname2)
+    event_register(p, "plotly_click")
+    event_register(p, "plotly_hover")
+    p
   })
   
   ## Panel 2 UI ####
