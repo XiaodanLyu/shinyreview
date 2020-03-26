@@ -4,9 +4,9 @@ This repository contains the R Shiny codes used to develop an interactive web to
 
 The following R files are necessary to run **iNtr**:
 
-- <mark>app.R</mark> define the user interface (`ui`) and `server` function
-- <mark>help.r</mark> (1) load data into R; (2) calculate differences on the fly
-- <mark>template.r</mark> plot the difference table and difference map
+- **app.R** :point_right: define the user interface (`ui`) and `server` function
+- **help.r** :point_right: (1) load data into R; (2) calculate differences on the fly
+- **template.r** :point_right: plot the difference table and difference map
 
 This tool is lively hosted at [https://lyux.shinyapps.io/table_review/](https://lyux.shinyapps.io/table_review/).
 
