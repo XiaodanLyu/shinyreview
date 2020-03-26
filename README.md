@@ -1,6 +1,12 @@
 ## Introduction
 
-This repository contains the R Shiny codes used to develop an interactive web tool called **iNtr** aiming for **i**nteractive **N**atural Resources Inventory (NRI) **t**able **r**eview. To avoid violating the privacy policy of the NRI, we are here presenting a modified version of the tool based on the USDA released 2015 and 2012 NRI estimation results.  
+This repository contains the R Shiny codes used to develop an interactive web tool called **iNtr** aiming for **i**nteractive **N**atural Resources Inventory (NRI) **t**able **r**eview. To avoid violating the privacy policy of the NRI, we are here presenting a modified version of the tool based on the USDA released 2015 and 2012 NRI estimation results.
+
+The following R files are necessary to run **iNtr**:
+
+- <mark>app.R</mark> define the user interface (`ui`) and `server` function
+- <mark>help.r</mark> (1) load data into R; (2) calculate differences on the fly
+- <mark>template.r</mark> plot the difference table and difference map
 
 This tool is lively hosted at [https://lyux.shinyapps.io/table_review/](https://lyux.shinyapps.io/table_review/).
 
