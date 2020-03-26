@@ -9,15 +9,15 @@ library(plotly)
 
 ## diff table
 rm(list = ls(all = T))
-tb_str <- read.csv("table_structures.csv", stringsAsFactors = FALSE)
-nri_bu <- read.csv("NRI_BU_CODE.csv", stringsAsFactors = FALSE)
+tb_str <- read.csv("data/clean/table_structures.csv", stringsAsFactors = FALSE)
+nri_bu <- read.csv("data/clean/NRI_BU_CODE.csv", stringsAsFactors = FALSE)
 ## diff map
-map <- readr::read_rds("us_nri_mapdf.rds")
-center <- read.csv("cb_2017_us_state_20m_albers_centroid.csv", stringsAsFactors = FALSE)
+map <- readr::read_rds("data/clean/us_nri_mapdf.rds")
+center <- read.csv("data/clean/cb_2017_us_state_20m_albers_centroid.csv", stringsAsFactors = FALSE)
 # map.cty <- readr::read_rds("us_cty_mapdf.rds")
 # center.cty <- readr::read_rds("us_cty_center.rds")
 ## method II
-NRItb <- read.csv("NRItables_by_version_state_year.csv", stringsAsFactors = F)
+NRItb <- read.csv("data/clean/NRItables_by_version_state_year.csv", stringsAsFactors = F)
 NRItb <- NRItb %>% mutate(setname = paste(version, year, sep = "_")) %>% select(-year, -version)
 ## color scale
 breaks <- seq(0, 1, 0.1)
